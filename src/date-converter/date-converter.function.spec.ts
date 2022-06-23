@@ -34,6 +34,10 @@ describe('Tests for dateConverter', () => {
         // Act
         const convertedBook = dateConverter<Book, Date>('details.published', book);
 
+
+        convertedBook.details.published
+        convertedBook.details.author.
+
         // Assert
         expect(typeof convertedBook.details.author.name).toEqual('string');
     });

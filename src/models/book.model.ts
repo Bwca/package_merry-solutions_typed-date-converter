@@ -2,11 +2,11 @@ export interface Book {
     title: string;
     details: {
         type: string;
-        published: string;
+        published: Date | string;
         author: {
             name: string;
-            born: string;
-            died: string | null;
+            born: Date | string;
+            died: Date | string | null;
         };
     };
 }
