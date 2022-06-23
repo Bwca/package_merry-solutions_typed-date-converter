@@ -1,7 +1,7 @@
 import { PropertyStringPath } from 'property-string-path';
 
-import { AmbiguousDate } from '../models/ambiguous-date.model';
-import { NonAmbiguousDate } from '../models/non-ambiguous-date.model';
+import { AmbiguousDate } from './models/ambiguous-date.model';
+import { NonAmbiguousDate } from './models/non-ambiguous-date.model';
 
 export function dateConverterFactory<ObjectDate, PrimitiveDate extends PrimitiveDateType>(
     converterToJsDate: StringToJSDateConverter<PrimitiveDate, ObjectDate>,

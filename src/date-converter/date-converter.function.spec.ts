@@ -1,4 +1,3 @@
-import { Book } from '../models/book.model';
 import { dateConverterFactory } from './date-converter.function';
 
 describe('Tests for dateConverter', () => {
@@ -21,7 +20,7 @@ describe('Tests for dateConverter', () => {
 
     it('Should properly convert Date at given path back to string', () => {
         // Arrange
-        const aBookWithDate = dateConverter<Book, Date>('details.published', book);
+        const aBookWithDate = dateConverter<Book, string>('details.published', book);
 
         // Act
         const stringDateBook = dateConverter<typeof aBookWithDate, string>('details.published', aBookWithDate);
@@ -51,5 +50,18 @@ function getABook(): Book {
             type: 'ebook',
         },
         title: 'All secrets of the universe',
+    };
+}
+
+interface Book {
+    title: string;
+    details: {
+        type: string;
+        published: Date | string;
+        author: {
+            name: string;
+            born: Date | string;
+            died: Date | string | null;
+        };
     };
 }

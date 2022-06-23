@@ -6,7 +6,7 @@ export type NonAmbiguousDate<T, TargetDateType extends AmbiguousDate<ObjectDate,
             ? T[K] extends PrimitiveDate
                 ? T[K]
                 : TargetDateType
-            :  TargetDateType | null
+            : TargetDateType | null
         : T[K] extends object
         ? NonAmbiguousDate<T[K], TargetDateType, ObjectDate, PrimitiveDate>
         : T[K];
