@@ -1,8 +1,11 @@
 import { Book } from '../models/book.model';
-import { dateConverter } from './date-converter.function';
+import { dateConverterFactory } from './date-converter.function';
 
 describe('Tests for dateConverter', () => {
     let book: Book;
+    const convertToDate = (s: string) => new Date(s);
+    const convertToString = (s: Date) => s.toISOString();
+    const dateConverter = dateConverterFactory<Date, string>(convertToDate, convertToString);
 
     beforeEach(() => {
         book = getABook();
@@ -10,7 +13,7 @@ describe('Tests for dateConverter', () => {
 
     it('Should properly convert string date at given path to a Date object', () => {
         // Act
-        const convertedBook = dateConverter<Book, Date>('details.published', book, 'date');
+        const convertedBook = dateConverter<Book, Date>('details.published', book);
 
         // Assert
         expect(convertedBook.details.published instanceof Date).toBeTruthy();
@@ -18,22 +21,22 @@ describe('Tests for dateConverter', () => {
 
     it('Should properly convert Date at given path back to string', () => {
         // Arrange
-        const aBookWithDate = dateConverter<Book, Date>('details.published', book, 'date');
+        const aBookWithDate = dateConverter<Book, Date>('details.published', book);
 
         // Act
-        const stringDateBook = dateConverter<typeof aBookWithDate, string>('details.published', aBookWithDate, 'string');
+        const stringDateBook = dateConverter<typeof aBookWithDate, string>('details.published', aBookWithDate);
 
         // Assert
         expect(typeof stringDateBook.details.published).toEqual('string');
     });
 
- /*    it('Should preserve null', () => {
+    it('Should not mess with other properties', () => {
         // Act
-        const convertedBook = dateConverter<Book, Date | null>('details.published', book, 'string');
+        const convertedBook = dateConverter<Book, Date>('details.published', book);
 
         // Assert
-        expect(typeof stringDateBook.details.published).toEqual('string');
-    }); */
+        expect(typeof convertedBook.details.author.name).toEqual('string');
+    });
 });
 
 function getABook(): Book {
@@ -42,7 +45,7 @@ function getABook(): Book {
             author: {
                 born: '1090-12-12',
                 died: null,
-                name: 'Bobuka',
+                name: 'Some important dude',
             },
             published: '1289-01-30',
             type: 'ebook',

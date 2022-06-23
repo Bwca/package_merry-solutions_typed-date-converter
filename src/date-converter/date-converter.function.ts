@@ -1,31 +1,39 @@
 import { PropertyStringPath } from 'property-string-path';
 
-import { AmbivalentDate } from '../models/ambivalent-date-type.model';
-import { UnAbmibalentDateTypes } from '../models/unambivalent-date-types.model';
+import { AmbiguousDate } from '../models/ambiguous-date.model';
+import { NonAmbiguousDate } from '../models/non-ambiguous-date.model';
 
-// @ts-ignore
-export function dateConverter<T, C extends AmbivalentDate>(
-    arg: PropertyStringPath<T> | PropertyStringPath<T>[],
-    item: T,
-    convertTo: C extends Date ? 'date' : 'string'
-): UnAbmibalentDateTypes<T, C> {
-    // @ts-ignore
-    (Array.isArray(arg) ? arg : [arg]).forEach((path) => {
-        const pathFragments = path.split('.');
-        const value: AmbivalentDate = pathFragments.reduce((a: Record<string, unknown>, b: string) => a[b], item);
-        const lastKey = pathFragments.pop();
-        let ref: Record<string, unknown> = item as Record<string, unknown>;
-        for (const fragment of pathFragments) {
-            ref = ref[fragment] as Record<string, unknown>;
-        }
-        if (value === null) {
-            ref[lastKey] = null;
-            return;
-        }
-        ref[lastKey] = convertTo === 'date' ? new Date(value) : (value as unknown as Date).toISOString();
-    });
+export function dateConverterFactory<ObjectDate, PrimitiveDate extends PrimitiveDateType>(
+    converterToJsDate: StringToJSDateConverter<PrimitiveDate, ObjectDate>,
+    converterFromJsDate: JSDateToStringConverter<ObjectDate, PrimitiveDate>
+) {
+    return function dateConverter<T, TargetDateType extends PrimitiveDate | ObjectDate>(
+        arg: PropertyStringPath<T> | Array<PropertyStringPath<T>>,
+        item: T
+    ): NonAmbiguousDate<T, TargetDateType, ObjectDate, PrimitiveDate> {
+        // @ts-ignore
+        (Array.isArray(arg) ? arg : [arg]).forEach((path) => {
+            const pathFragments = path.split('.');
+            const value: AmbiguousDate<ObjectDate, PrimitiveDate> = pathFragments.reduce(
+                (a: Record<string, unknown>, b: string) => a[b],
+                item
+            );
+            const lastKey = pathFragments.pop();
+            let ref: Record<string, unknown> = item as Record<string, unknown>;
+            for (const fragment of pathFragments) {
+                ref = ref[fragment] as Record<string, unknown>;
+            }
+            if (value === null) {
+                ref[lastKey] = null;
+                return;
+            }
+            ref[lastKey] = typeof value === 'object' ? converterFromJsDate(value) : converterToJsDate(<PrimitiveDate>value);
+        });
 
-    return item as UnAbmibalentDateTypes<T, C>;
+        return item as NonAmbiguousDate<T, TargetDateType, ObjectDate, PrimitiveDate>;
+    };
 }
 
-type Nullish<T> = T | null;
+type PrimitiveDateType = string | number;
+type JSDateToStringConverter<S, D extends PrimitiveDateType> = (date: S) => D;
+type StringToJSDateConverter<S extends PrimitiveDateType, D> = (date: S) => D;
