@@ -1,5 +1,5 @@
 {
-    "name": "ts-template-repo",
+    "name": "@merry-solutions/typed-date-converter",
     "version": "1.0.0",
     "description": "",
     "main": "./dist/index.js",
@@ -58,6 +58,6 @@
         "typescript": "^4.6.4"
     },
     "dependencies": {
-        "property-string-path": "^1.1.0"
+        "property-string-path": "^1.1.1"
     }
 }

@@ -8,7 +8,7 @@ export function dateConverterFactory<ObjectDate, PrimitiveDate extends Primitive
     converterFromJsDate: JSDateToStringConverter<ObjectDate, PrimitiveDate>
 ) {
     return function dateConverter<T, TargetDateType extends PrimitiveDate | ObjectDate>(
-        arg: PropertyStringPath<T> | Array<PropertyStringPath<T>>,
+        arg: PropertyStringPath<Omit<T, 'valueOf' | 'toString'>> | Array<PropertyStringPath<T>>,
         item: T
     ): NonAmbiguousDate<T, TargetDateType, ObjectDate, PrimitiveDate> {
         // @ts-ignore
@@ -35,5 +35,7 @@ export function dateConverterFactory<ObjectDate, PrimitiveDate extends Primitive
 }
 
 type PrimitiveDateType = string | number;
+// eslint-disable-next-line no-unused-vars
 type JSDateToStringConverter<S, D extends PrimitiveDateType> = (date: S) => D;
+// eslint-disable-next-line no-unused-vars
 type StringToJSDateConverter<S extends PrimitiveDateType, D> = (date: S) => D;
