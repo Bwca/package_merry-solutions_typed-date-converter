@@ -12,8 +12,7 @@
     "plugin:import/warnings",
     "plugin:jest/recommended",
     "plugin:prettier/recommended",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "prettier"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -27,8 +26,8 @@
   },
   "plugins": ["@typescript-eslint", "jest", "import"],
   "rules": {
-    "indent": ["error", "tab"],
-    "linebreak-style": ["error", "unix"],
+    "indent": "off",
+    "linebreak-style": "off",
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
     "prettier/prettier": [
