@@ -12,7 +12,6 @@
     "plugin:import/warnings",
     "plugin:jest/recommended",
     "plugin:prettier/recommended",
-    "plugin:react/recommended",
     "prettier",
     "prettier/@typescript-eslint"
   ],

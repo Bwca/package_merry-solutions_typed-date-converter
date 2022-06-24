@@ -14,6 +14,10 @@ describe('Tests for dateConverter', () => {
         // Act
         const convertedBook = dateConverter<Book, Date>('details.published', book);
 
+        convertedBook.details.author.name
+        convertedBook.details.author.born
+        convertedBook.details.author.died
+
         // Assert
         expect(convertedBook.details.published instanceof Date).toBeTruthy();
     });
