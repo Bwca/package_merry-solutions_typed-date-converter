@@ -8,11 +8,13 @@ export function dateConverterFactory<ObjectDate, PrimitiveDate extends Primitive
     converterFromJsDate: JSDateToStringConverter<ObjectDate, PrimitiveDate>
 ) {
     return function dateConverter<T, TargetDateType extends PrimitiveDate | ObjectDate>(
-        arg: PropertyStringPath<Omit<T, 'valueOf' | 'toString'>> | Array<PropertyStringPath<T>>,
-        item: T
+        arg: PropertyStringPath<T> | Array<PropertyStringPath<T>>,
+        item: T,
+        convertTo: TargetDateType extends PrimitiveDateType ? 'primitive' : 'object'
     ): NonAmbiguousDate<T, TargetDateType, ObjectDate, PrimitiveDate> {
         // @ts-ignore
         (Array.isArray(arg) ? arg : [arg]).forEach((path) => {
+            // @ts-ignore
             const pathFragments = path.split('.');
             const value: AmbiguousDate<ObjectDate, PrimitiveDate> = pathFragments.reduce(
                 (a: Record<string, unknown>, b: string) => a[b],
@@ -27,7 +29,7 @@ export function dateConverterFactory<ObjectDate, PrimitiveDate extends Primitive
                 ref[lastKey] = null;
                 return;
             }
-            ref[lastKey] = typeof value === 'object' ? converterFromJsDate(value) : converterToJsDate(<PrimitiveDate>value);
+            ref[lastKey] = convertTo === 'primitive' ? converterFromJsDate(<ObjectDate>value) : converterToJsDate(<PrimitiveDate>value);
         });
 
         return item as NonAmbiguousDate<T, TargetDateType, ObjectDate, PrimitiveDate>;
