@@ -1,10 +1,10 @@
-import { dateConverterFactory } from './date-converter-factory.function';
+import { createPathDateConverter } from './path-date-converter.factory';
 
 describe('Tests for dateConverter with strings', () => {
     let book: Book;
     const convertToDate = (s: string) => new Date(s);
     const convertToString = (s: Date | string) => (s instanceof Date ? s.toISOString() : s);
-    const dateConverter = dateConverterFactory<Date, string>(convertToDate, convertToString);
+    const dateConverter = createPathDateConverter<string, Date>(convertToDate, convertToString);
 
     beforeEach(() => {
         book = getABook<string>('1212-12-12');
@@ -50,7 +50,7 @@ describe('Tests for dateConverter with numbers', () => {
     let book: Book<number>;
     const convertToDate = (s: number) => new Date(s);
     const convertToString = (s: Date | number) => (s instanceof Date ? s.getTime() : s);
-    const dateConverter = dateConverterFactory<Date, number>(convertToDate, convertToString);
+    const dateConverter = createPathDateConverter<number, Date>(convertToDate, convertToString);
 
     beforeEach(() => {
         book = getABook<number>(new Date().getTime());
