@@ -12,7 +12,7 @@ describe('Tests for dateConverter with strings', () => {
 
     it('Should properly convert string date at given path to a Date object', () => {
         // Act
-        const convertedBook = dateConverter<Book, Date>('details.published', book, 'object');
+        const convertedBook = dateConverter<Book, Date>(book, 'details.published', 'object');
 
         // Assert
         expect(convertedBook.details.published instanceof Date).toBeTruthy();
@@ -20,10 +20,10 @@ describe('Tests for dateConverter with strings', () => {
 
     it('Should properly convert Date at given path back to string', () => {
         // Arrange
-        const aBookWithDate = dateConverter<Book, string>('details.author.born', book, 'primitive');
+        const aBookWithDate = dateConverter<Book, string>(book, 'details.author.born', 'primitive');
 
         // Act
-        const stringDateBook = dateConverter<typeof aBookWithDate, string>('details.published', aBookWithDate, 'primitive');
+        const stringDateBook = dateConverter<typeof aBookWithDate, string>(aBookWithDate, 'details.published', 'primitive');
 
         // Assert
         expect(typeof stringDateBook.details.published).toEqual('string');
@@ -31,7 +31,7 @@ describe('Tests for dateConverter with strings', () => {
 
     it('Should not mess with other properties', () => {
         // Act
-        const convertedBook = dateConverter<Book, Date>('details.published', book, 'object');
+        const convertedBook = dateConverter<Book, Date>(book, 'details.published', 'object');
 
         // Assert
         expect(typeof convertedBook.details.author.name).toEqual('string');
@@ -39,7 +39,7 @@ describe('Tests for dateConverter with strings', () => {
 
     it('Should be able to perform bulk update', () => {
         // Act
-        const { details } = dateConverter<Book, Date>(['details.author.born', 'details.author.died', 'details.published'], book, 'object');
+        const { details } = dateConverter<Book, Date>(book, ['details.author.born', 'details.author.died', 'details.published'], 'object');
 
         // Assert
         expect([details.published, details.author.born].every((i) => i instanceof Date) && details.author.died === null).toBeTruthy();
@@ -58,7 +58,7 @@ describe('Tests for dateConverter with numbers', () => {
 
     it('Should properly convert string date at given path to a Date object', () => {
         // Act
-        const convertedBook = dateConverter<Book<number>, Date>('details.published', book, 'object');
+        const convertedBook = dateConverter<Book<number>, Date>(book, 'details.published', 'object');
 
         // Assert
         expect(convertedBook.details.published instanceof Date).toBeTruthy();
@@ -66,10 +66,10 @@ describe('Tests for dateConverter with numbers', () => {
 
     it('Should properly convert Date at given path back to number', () => {
         // Arrange
-        const aBookWithDate = dateConverter<Book<number>, number>('details.author.born', book, 'primitive');
+        const aBookWithDate = dateConverter<Book<number>, number>(book, 'details.author.born', 'primitive');
 
         // Act
-        const stringDateBook = dateConverter<typeof aBookWithDate, number>('details.published', aBookWithDate, 'primitive');
+        const stringDateBook = dateConverter<typeof aBookWithDate, number>(aBookWithDate, 'details.published', 'primitive');
 
         // Assert
         expect(typeof stringDateBook.details.published).toEqual('number');
@@ -77,7 +77,7 @@ describe('Tests for dateConverter with numbers', () => {
 
     it('Should not mess with other properties', () => {
         // Act
-        const convertedBook = dateConverter<Book<number>, Date>('details.published', book, 'object');
+        const convertedBook = dateConverter<Book<number>, Date>(book, 'details.published', 'object');
 
         // Assert
         expect(typeof convertedBook.details.author.name).toEqual('string');
@@ -86,8 +86,8 @@ describe('Tests for dateConverter with numbers', () => {
     it('Should be able to perform bulk update', () => {
         // Act
         const { details } = dateConverter<Book<number>, Date>(
-            ['details.author.born', 'details.author.died', 'details.published'],
             book,
+            ['details.author.born', 'details.author.died', 'details.published'],
             'object'
         );
 

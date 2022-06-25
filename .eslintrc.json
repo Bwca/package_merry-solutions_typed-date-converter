@@ -27,6 +27,7 @@
   "plugins": ["@typescript-eslint", "jest", "import"],
   "rules": {
     "indent": "off",
+    "no-unused-vars": "off",
     "linebreak-style": "off",
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
