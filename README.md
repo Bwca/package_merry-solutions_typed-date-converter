@@ -3,58 +3,120 @@
 
 ## Well, what is it?
 
-It is an attempt to create an approach for converting primitive dates (numbers/strings) into object types (Date, Moment, etc.) for typescript, without the need to describe them in a separate interface.
-For example you get from api:
+It is an attempt to create an approach for converting primitive dates (numbers/strings) into object types (Date, Moment,
+etc.) for typescript, without the need to describe them in a separate interface.
+
+For example, you get from api:
 ```typescript
 interface User {
-    registered: string;
-    details: {
-        birthday: string;
-    };
+  registered: string;
+  name: string;
+  lastLoginDate: string | null;
+  details: Details;
+  activities: Activity[];
+}
+
+interface Details {
+  birthday: string;
+  place: string;
+}
+
+interface Activity {
+  place: string;
+  date: string;
 }
 ```
 
-but in the application you need the convert the registered field to `Date`. What now? Create a new interface with this type, or modify existing one for using generic? This is the problem this package tries to tackle: convert all dates from one type to another and return a new typed entity without the need to manually create new interfaces.
+but in the application you need the convert the `User.registered`, `User.lastLoginDate`, `Details.birthday` and 
+`Activity.date` to `Date`. What now? Create a new interface for each of these with this type, or modify existing one for 
+using generic? This is the problem this package tries to tackle: convert all dates from one type to another and return a 
+new **typed** entity without the need to manually create new interfaces.
 
 ## Well, how to use it?
 
-First of all, the interface used for converting should be turned into a 'super' interface, to include all possible date types, this is required for proper converted result typings. Let's assume the `registered` field of the `User` can be primitive `string` or object `Date`:
+First, the interface used for converting should be turned into a 'super' interface, to include all possible date types, 
+this is required for proper converted result typings. So let's add `Date` type to the union of fields we intend to
+convert:
 
 ```typescript
 interface User {
-    registered: string | Date;
-    details: {
-        birthday: string | Date;
-    };
+  registered: string | Date;
+  name: string;
+  lastLoginDate: string | Date | null;
+  details: Details;
+  activities: Activity[];
+}
+
+interface Details {
+  birthday: string | Date;
+  place: string;
+}
+
+interface Activity {
+  place: string;
+  date: string | Date;
 }
 ```
 
-As the package does not perform conversions itself, it requires you to provide two function: one for converting object date to primitive and the other one doing vice versa.
-
-In our case let's assume the date as primitive always comes as YYYY-MM-DD and we can throw it into `Date` constructor, so the functions would look like this:
-
+This is required for proper typing of the output. Now we need some functions for checking and converting the fields.
+For the sake of simplicity, let's assume our dates come always in format YYYY-MM-DD.
+Primitive to `Date` converter would look the following way:
 ```typescript
-const convertToDate = (s: string) => new Date(s);
-const convertToString = (s: Date) => s.toISOString();
+const converterToJsDate = (d: string) => new Date(d);
+```
+Converter from `Date` to primitive:
+```typescript
+const converterFromJsDate = (d: Date) => d.toISOString();
 ```
 
-Now we can create our date converter for `Date` and `string` types:
+And two more function that are needed to determine if the field is primitive intended for conversion to date object, or
+a date object intended for conversion to a primitive:
 ```typescript
-const dateConverter = dateConverterFactory<Date, string>(convertToDate, convertToString);
+const checkTypeofDate = (v: unknown) => v instanceof Date;
+const checkTypeofPrimitive = (v: string | number) => typeof v === 'string' && /^\d{4}(-\d{2}){2}$/.test(v);
 ```
 
-Next we call it, passing 
-* two types, the interface we use for conversion and the date type we want to be produced;
-* string paths to date fields for conversion (there is intellisense for them), one path or array of values is supported, your job is to point to the right fields for conversion, they can't be determined automatically;
-  ![](./screenshots/argument-intellisense.png)
-* explicit flag of conversion type, either `object` or `primitive`, there's a type check for it, can't pass the wrong one.
+Now we are ready to manufacture typed date converter by passing `createRecursiveDateConverter` primitive and object 
+types we will be using in conversions and the 4 functions we've just created:
 
 ```typescript
-const convertedUser = dateConverter<User, Date>(
-    'registered',
+const deepDateConverter = createRecursiveDateConverter<string, Date>({
+    converterToJsDate,
+    converterFromJsDate,
+    checkTypeofDate,
+    checkTypeofPrimitive,
+});
+```
+
+Assuming we have a user
+```typescript
+const user: User = {
+  registered: '1970-12-12',
+  name: 'Bob',
+  lastLoginDate: null,
+  details: {
+    birthday: '1970-12-12',
+    place: 'some village',
+  },
+  activities: [
     {
-        registered: '1970-12-12',
+      date: '1970-12-12',
+      place: 'not specified',
     },
-    'object'
-);
+  ],
+};
 ```
+
+our conversion would go as following:
+```typescript
+const mappedUser = deepDateConverter<User, Date>(user);
+
+// now all these fields are Date: mappedUser.registered, mappedUser.details.birthday, mappedUser.activities[0].date
+```
+To convert back to string dates we could do the same process to the object we received, passing different types:
+```typescript
+const converteToPrimitiveDatesdUser = deepDateConverter<typeof mappedUser, Date>(mappedUser);
+// now all these fields are back to string: mappedUser.registered, mappedUser.details.birthday, mappedUser.activities[0].date
+```
+
+Simple as that :)

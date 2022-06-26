@@ -169,12 +169,21 @@ describe('README tests', () => {
 
     it('Should convert Dates back to strings', () => {
         // Act
-        const mappedUser = deepDateConverter<User, string>(deepDateConverter<User, Date>(user));
+        const intermediateUser = deepDateConverter<User, Date>(user);
+        const mappedUser = deepDateConverter<typeof intermediateUser, string>(intermediateUser);
 
         // Assert
         expect(
             [mappedUser.registered, mappedUser.details.birthday, mappedUser.activities[0].date].every((s) => typeof s === 'string')
         ).toBeTruthy();
+    });
+
+    it('Should respect null', () => {
+        // Act
+        const mappedUser = deepDateConverter<User, Date>(user);
+
+        // Assert
+        expect(mappedUser.lastLoginDate).toEqual(null);
     });
 });
 
@@ -182,6 +191,7 @@ function getUser(): User {
     return {
         registered: '1970-12-12',
         name: 'Bob',
+        lastLoginDate: null,
         details: {
             birthday: '1970-12-12',
             place: 'some village',
@@ -198,6 +208,7 @@ function getUser(): User {
 interface User {
     registered: string | Date;
     name: string;
+    lastLoginDate: string | Date | null;
     details: {
         birthday: string | Date;
         place: string;
