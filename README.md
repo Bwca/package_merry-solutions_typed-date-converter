@@ -34,7 +34,12 @@ new **typed** entity without the need to manually create new interfaces.
 
 ## Well, how to use it?
 
-First, the interface used for converting should be turned into a 'super' interface, to include all possible date types, 
+Install with
+```bash
+npm i @merry-solutions/typed-date-converter
+```
+
+Next, the interface used for converting should be turned into a 'super' interface, to include all possible date types, 
 this is required for proper converted result typings. So let's add `Date` type to the union of fields we intend to
 convert:
 
@@ -58,37 +63,38 @@ interface Activity {
 }
 ```
 
-This is required for proper typing of the output. Now we need some functions for checking and converting the fields.
-For the sake of simplicity, let's assume our dates come always in format YYYY-MM-DD.
-Primitive to `Date` converter would look the following way:
-```typescript
-const converterToJsDate = (d: string) => new Date(d);
-```
-Converter from `Date` to primitive:
-```typescript
-const converterFromJsDate = (d: Date) => d.toISOString();
-```
-
-And two more function that are needed to determine if the field is primitive intended for conversion to date object, or
-a date object intended for conversion to a primitive:
-```typescript
-const checkTypeofDate = (v: unknown) => v instanceof Date;
-const checkTypeofPrimitive = (v: string | number) => typeof v === 'string' && /^\d{4}(-\d{2}){2}$/.test(v);
-```
-
-Now we are ready to manufacture typed date converter by passing `createRecursiveDateConverter` primitive and object 
-types we will be using in conversions and the 4 functions we've just created:
+This is required for proper typing of the output. Now we need some functions for checking and converting the fields:
+* to check if the property is primitive fit for conversion to object date;
+* to check if object is date which requires conversion into primitive;
+* to convert primitive to a date object;
+* to convert date object to a primitive.
+* 
+For the sake of simplicity, let's assume our dates come always in format YYYY-MM-DD. So our functions would look the 
+following way:
 
 ```typescript
+import {
+  CheckTypeofObjectDate,
+  CheckTypeofPrimitiveDate,
+  JSDateToStringConverter,
+  StringToJSDateConverter,
+  createRecursiveDateConverter,
+} from '@merry-solutions/typed-date-converter';
+
+const converterToJsDate: StringToJSDateConverter<string, Date> = (d: string) => new Date(d);
+const converterFromJsDate:JSDateToStringConverter<Date, string> = (d: Date) => d.toISOString();
+const checkTypeofDate: CheckTypeofObjectDate = (v: unknown) => v instanceof Date;
+// if string is YYYY-MM-DD, we assume it is a date string
+const checkTypeofPrimitive: CheckTypeofPrimitiveDate = (v: string | number) => typeof v === 'string' && /^\d{4}(-\d{2}){2}$/.test(v);
+
 const deepDateConverter = createRecursiveDateConverter<string, Date>({
-    converterToJsDate,
-    converterFromJsDate,
-    checkTypeofDate,
-    checkTypeofPrimitive,
+  converterToJsDate,
+  converterFromJsDate,
+  checkTypeofDate,
+  checkTypeofPrimitive,
 });
 ```
-
-Assuming we have a user
+There, we have a converter ready for usage. Now assuming we have a user
 ```typescript
 const user: User = {
   registered: '1970-12-12',
@@ -109,14 +115,15 @@ const user: User = {
 
 our conversion would go as following:
 ```typescript
-const mappedUser = deepDateConverter<User, Date>(user);
-
+const convertedUser = deepDateConverter<User, Date>(user);
 // now all these fields are Date: mappedUser.registered, mappedUser.details.birthday, mappedUser.activities[0].date
 ```
 To convert back to string dates we could do the same process to the object we received, passing different types:
 ```typescript
-const converteToPrimitiveDatesdUser = deepDateConverter<typeof mappedUser, Date>(mappedUser);
+const converteToPrimitiveDatesdUser = deepDateConverter<typeof convertedUser, string>(convertedUser);
 // now all these fields are back to string: mappedUser.registered, mappedUser.details.birthday, mappedUser.activities[0].date
 ```
+
+Don't forget to pass types to the converter, so the IDE knows the correct type.
 
 Simple as that :)
