@@ -1,7 +1,7 @@
 {
     "name": "@merry-solutions/typed-date-converter",
     "version": "1.0.0",
-    "description": "",
+    "description": "This package provides an approach for converting primitives to object date types and vice versa, with automatic type conversion, eliminating the need to create new interfaces in typescript or using generics for date typing.",
     "main": "./dist/index.js",
     "files": [
         "dist/**"
@@ -25,7 +25,9 @@
         ]
     },
     "bin": "",
-    "keywords": [],
+    "keywords": [
+        "date", "conversion", "typescript", "converter", "type", "types"
+    ],
     "author": {
         "name": "Volodymyr Yepishev",
         "email": "i.m.bwca@gmail.com"
