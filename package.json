@@ -3,6 +3,10 @@
     "version": "1.0.0",
     "description": "This package provides an approach for converting primitives to object date types and vice versa, with automatic type conversion, eliminating the need to create new interfaces in typescript or using generics for date typing.",
     "main": "./dist/index.js",
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
     "files": [
         "dist/**"
     ],
